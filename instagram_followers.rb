@@ -2,7 +2,7 @@ require 'restclient'
 require 'json'
 
 class InstagramBotSearcher
-  attr_reader :user_name, :id, :access_tokens
+  attr_reader :username, :id, :access_tokens
   
   def initialize(username, *tokens)
     @access_tokens = []
@@ -56,16 +56,10 @@ class InstagramBotSearcher
   end
 
   def is_bot?(id)
-    url = "https://api.instagram.com/v1/users/#{id}/follows?#{access_token}"
-    num_following = 0
-    while true
-      parsed_response = make_request(url)
-      return true unless parsed_response
-      break if parsed_response["pagination"]["next_url"].nil?
-      num_following += parsed_response["data"].count
-      url = parsed_response["pagination"]["next_url"]
-      parsed_response = make_request(url)
-    end
+    url = "https://api.instagram.com/v1/users/#{id}/?#{access_token}"
+    parsed_response = make_request(url)
+    return true unless parsed_response
+    num_following = parsed_response["data"]["counts"]["follows"]
     num_following > 200
   end
   
