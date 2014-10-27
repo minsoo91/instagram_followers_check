@@ -2,6 +2,7 @@ require 'restclient'
 require 'json'
 
 class InstagramBotSearcher
+  attr_accessor :num_requests
   attr_reader :username, :id, :access_tokens
   
   def initialize(username, *tokens)
@@ -9,6 +10,8 @@ class InstagramBotSearcher
     tokens.each do |token|
       @access_tokens << "access_token=#{token}"
     end
+    @num_requests = 0
+    @num_followers = 0
     @username = username
     @id = get_id
   end
@@ -22,7 +25,9 @@ class InstagramBotSearcher
     valids, not_valids = 0, 0
     while true
       parsed_response = make_request(url)
+      p parsed_response["data"].count
       parsed_response["data"].each do |follower|
+        @num_followers += 1
         is_valid?(follower["id"]) ? not_valids += 1 : valids += 1
       end
       break if parsed_response["pagination"]["next_url"].nil?
@@ -42,7 +47,8 @@ class InstagramBotSearcher
   end
 
   def make_request(url)
-    response = RestClient.get(url) do |response, request, result| 
+    @num_requests += 1
+    response = RestClient.get(url) do |response, request, result|
       return false if response.code == 400
       response
     end
@@ -55,7 +61,7 @@ class InstagramBotSearcher
 
   def num_following(id)
     url = "https://api.instagram.com/v1/users/#{id}/?#{access_token}"
-    puts "requesting..."
+    puts "requesting #{@num_requests}..."
     parsed_response = make_request(url)
     return 0 unless parsed_response
     parsed_response["data"]["counts"]["follows"]
@@ -63,12 +69,13 @@ class InstagramBotSearcher
     
   def result
     pair_followers = check_followers
+    puts "Number of followers checked = #{@num_followers}"
     puts "#{username} has #{pair_followers[0]} humans and #{pair_followers[1]} bots."
   end
 end
 
 access_token = "8413639.1fb234f.c0f10cda7f6e4234bc23be65137d5826"
-p = InstagramBotSearcher.new("marinuxi", access_token)
+p = InstagramBotSearcher.new("amerdesign", access_token)
 
 p.result
 
