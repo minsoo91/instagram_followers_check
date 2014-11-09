@@ -1,4 +1,4 @@
-require 'restclient'
+require 'rest_client'
 require 'json'
 
 class InstagramBotSearcher
@@ -56,7 +56,7 @@ class InstagramBotSearcher
   end
   
   def many_followings?(id)
-    num_following(id) > 400
+    num_following(id) > 500
   end
 
   def num_following(id)
@@ -75,7 +75,7 @@ class InstagramBotSearcher
 end
 
 access_token = "8413639.1fb234f.c0f10cda7f6e4234bc23be65137d5826"
-p = InstagramBotSearcher.new("amerdesign", access_token)
+p = InstagramBotSearcher.new("lmuntaner", access_token)
 
 p.result
 
